@@ -1,8 +1,27 @@
 ## 我的安装方式
 ```bash
+# 创建独立的Python 3.10环境
+conda create -y -n lerobot_v3 python=3.10
 
+# 初始化conda环境（如果需要）
+eval "$(conda shell.bash hook)"
+
+# 激活环境
+conda activate lerobot_v3
+
+# 验证Python版本
+python --version
+# 期望输出: Python 3.10.18
+
+pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+
+pip install -e .[smolvla] -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
+
+
+## 官方的lerobot
 <p align="center">
   <img alt="LeRobot, Hugging Face Robotics Library" src="https://raw.githubusercontent.com/huggingface/lerobot/main/media/lerobot-logo-thumbnail.png" width="100%">
   <br/>

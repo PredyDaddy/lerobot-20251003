@@ -10,7 +10,9 @@ mkdir -p logs
 
 # 设置环境变量
 export PYTHONWARNINGS="ignore::UserWarning:torchvision.io._video_deprecation_warning"
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+# 获取项目根目录（脚本所在目录的上两级）
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+export PYTHONPATH="${PYTHONPATH}:${PROJECT_ROOT}"
 
 # 检查conda环境
 echo "检查当前conda环境: $CONDA_DEFAULT_ENV"
@@ -22,15 +24,15 @@ if [ "$CONDA_DEFAULT_ENV" != "lerobot_v3" ]; then
 fi
 echo "当前环境: $CONDA_DEFAULT_ENV ✓"
 
-# 检查数据集是否存在
-DATASET_PATH="/home/chenqingyu/robot/new_lerobot/lerobot-20251011/grasp_dataset_v30"
+# 检查数据集是否存在（使用相对路径）
+DATASET_PATH="${PROJECT_ROOT}/grasp_dataset_v30"
 if [ ! -d "$DATASET_PATH" ]; then
     echo "错误: 数据集路径不存在: $DATASET_PATH"
     exit 1
 fi
 
-# 设置输出目录路径（包含时间戳和随机数避免冲突）
-OUTPUT_BASE="/home/chenqingyu/robot/new_lerobot/lerobot-20251011/output"
+# 设置输出目录路径（使用相对路径，包含时间戳和随机数避免冲突）
+OUTPUT_BASE="${PROJECT_ROOT}/output"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 RANDOM_ID=$(shuf -i 1000-9999 -n 1)
 OUTPUT_PATH="${OUTPUT_BASE}/act_train_${TIMESTAMP}_${RANDOM_ID}"
@@ -50,7 +52,7 @@ DEVICE="cuda"
 BATCH_SIZE=24
 NUM_WORKERS=8
 STEPS=500000
-SAVE_FREQ=10000
+SAVE_FREQ=4000
 LOG_FREQ=200
 EVAL_FREQ=0
 
@@ -67,8 +69,8 @@ echo "批次大小: $BATCH_SIZE"
 echo "训练步数: $STEPS"
 echo "========================================"
 
-# 运行训练脚本
-python src/lerobot/scripts/lerobot_train.py \
+# 运行训练脚本（使用相对路径）
+python ${PROJECT_ROOT}/src/lerobot/scripts/lerobot_train.py \
     --policy.type=$POLICY_TYPE \
     --policy.device=$DEVICE \
     --policy.push_to_hub=false \

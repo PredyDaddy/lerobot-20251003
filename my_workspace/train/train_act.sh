@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# ACT策略训练脚本
+# 基于新框架的LeRobot训练脚本
+# 数据集: grasp_dataset_v30
+# 策略: ACT (Action Chunking Transformers)
+
+# 创建日志目录（如果不存在）
+mkdir -p logs
+
+# 设置环境变量
+export PYTHONWARNINGS="ignore::UserWarning:torchvision.io._video_deprecation_warning"
+export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+
+# 检查conda环境
+echo "检查当前conda环境: $CONDA_DEFAULT_ENV"
+if [ "$CONDA_DEFAULT_ENV" != "lerobot_v3" ]; then
+    echo "警告: 当前不在lerobot_v3环境中"
+    echo "请手动运行: conda activate lerobot_v3"
+    echo "然后再运行此脚本"
+    exit 1
+fi
+echo "当前环境: $CONDA_DEFAULT_ENV ✓"
+
+# 检查数据集是否存在
+DATASET_PATH="/home/chenqingyu/robot/new_lerobot/lerobot-20251011/grasp_dataset_v30"
+if [ ! -d "$DATASET_PATH" ]; then
+    echo "错误: 数据集路径不存在: $DATASET_PATH"
+    exit 1
+fi
+
+# 设置输出目录路径（包含时间戳和随机数避免冲突）
+OUTPUT_BASE="/home/chenqingyu/robot/new_lerobot/lerobot-20251011/output"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+RANDOM_ID=$(shuf -i 1000-9999 -n 1)
+OUTPUT_PATH="${OUTPUT_BASE}/act_train_${TIMESTAMP}_${RANDOM_ID}"
+echo "输出目录: $OUTPUT_PATH"
+
+# 确保输出目录不存在
+if [ -d "$OUTPUT_PATH" ]; then
+    echo "错误: 输出目录已存在，重新生成"
+    RANDOM_ID=$(shuf -i 1000-9999 -n 1)
+    OUTPUT_PATH="${OUTPUT_BASE}/act_train_${TIMESTAMP}_${RANDOM_ID}"
+    echo "新的输出目录: $OUTPUT_PATH"
+fi
+
+# 训练参数配置
+POLICY_TYPE="act"
+DEVICE="cuda"
+BATCH_SIZE=24
+NUM_WORKERS=8
+STEPS=500000
+SAVE_FREQ=10000
+LOG_FREQ=200
+EVAL_FREQ=0
+
+# 生成带时间戳的日志文件名
+LOG_FILE="logs/act_train_$(date +%Y%m%d_%H%M%S).log"
+
+echo "========================================"
+echo "开始ACT策略训练"
+echo "时间: $(date)"
+echo "数据集: $DATASET_PATH"
+echo "输出路径: $OUTPUT_PATH"
+echo "策略类型: $POLICY_TYPE"
+echo "批次大小: $BATCH_SIZE"
+echo "训练步数: $STEPS"
+echo "========================================"
+
+# 运行训练脚本
+python src/lerobot/scripts/lerobot_train.py \
+    --policy.type=$POLICY_TYPE \
+    --policy.device=$DEVICE \
+    --policy.push_to_hub=false \
+    --dataset.root=$DATASET_PATH \
+    --dataset.repo_id=None \
+    --output_dir=$OUTPUT_PATH \
+    --batch_size=$BATCH_SIZE \
+    --num_workers=$NUM_WORKERS \
+    --steps=$STEPS \
+    --save_freq=$SAVE_FREQ \
+    --log_freq=$LOG_FREQ \
+    --eval_freq=$EVAL_FREQ \
+    --wandb.enable=false \
+    --job_name=act_grasp_train \
+    2>&1 | tee $LOG_FILE
+
+# 检查训练是否成功完成
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+    echo "========================================"
+    echo "训练完成!"
+    echo "时间: $(date)"
+    echo "日志文件: $LOG_FILE"
+    echo "模型保存在: $OUTPUT_PATH"
+    echo "========================================"
+else
+    echo "========================================"
+    echo "训练失败!"
+    echo "请检查日志文件: $LOG_FILE"
+    echo "========================================"
+    exit 1
+fi

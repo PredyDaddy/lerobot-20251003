@@ -80,9 +80,7 @@ coverage.xml
 !tests/artifacts
 
 ### Logs & Temporary Files ###
-logs/
 tmp/
-*.log
 pip-log.txt
 pip-delete-this-directory.txt
 celerybeat-schedule
@@ -179,9 +177,11 @@ grasp_dataset_v30/
 *.urdf
 *.xml
 *.part
+*.zip
 
 # HuggingFace cache
 .hf_cache/
 
 # 忽略文件夹
 grasp_dataset
+output

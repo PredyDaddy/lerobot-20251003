@@ -172,6 +172,7 @@ python lerobot/scripts/control_robot.py \
 ## 开发规范
 - 在我跟你讨论的时候，不需要完全顺着我的意思，我在不确定的时候会询问你某件事情是否需要做，如果你觉得我的做法不对，可以直接的告诉我做这件事情的意义不大
 - 在每次任务的开始先使用sequential-thinking来思考，认真思考，thinkharder, ultratkink, 避免犯错
-- 在这个项目里面运行python代码务必使用leroboot_v3这个conda环境。
+- 在这个项目里面运行python代码务必使用lerobot_v3这个conda环境。
 - 这个项目的conda环境为lerobot，先用conda activate lerobot激活环境再使用终端命令
 - 在使用python安装包的时候尽可能的使用清华园，如果没有才考虑这个其他的
+- 回答我问你问题的时候，请全面检索代码库，给出基于代码实现的详细技术分析，而不是泛泛而谈。
